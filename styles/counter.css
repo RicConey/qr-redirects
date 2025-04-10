@@ -1,0 +1,34 @@
+/* styles/counter.css */
+.counterContainer {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.counterHeader {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.counterTable {
+    width: 80%; /* Таблица станет уже */
+    margin: 0 auto; /* Выравнивание таблицы по центру */
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.counterTable th,
+.counterTable td {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    text-align: center; /* Выравнивание содержимого по центру */
+}
+
+.counterTable th {
+    background-color: #f8f9fa;
+}

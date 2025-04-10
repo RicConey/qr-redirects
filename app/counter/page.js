@@ -1,32 +1,38 @@
-// app/counter/page.js
 import pool from '../../lib/db';
+import "../../styles/common.css";
 
-async function getLogs() {
-    // Группируем по qr_id и считаем количество переходов
-    const res = await pool.query(
-        'SELECT qr_id, COUNT(*) AS clicks FROM qr_logs GROUP BY qr_id ORDER BY qr_id ASC'
-    );
+async function getStats() {
+    const res = await pool.query(`
+        SELECT l.slug, l.display_name, COUNT(*) AS clicks
+        FROM qr_logs r
+                 JOIN qr_links l ON l.slug = r.qr_slug
+        GROUP BY l.slug, l.display_name
+        ORDER BY l.slug ASC
+    `);
     return res.rows;
 }
 
 export default async function CounterPage() {
-    const logs = await getLogs();
-
+    const stats = await getStats();
     return (
-        <div style={{ padding: '20px' }}>
-            <h1>Статистика QR-кодов</h1>
-            <table border="1" cellPadding="5" cellSpacing="0">
+        <div className="container">
+            <h1 className="header">Статистика переходов</h1>
+            <table className="table">
                 <thead>
                 <tr>
-                    <th>QR Код</th>
+                    <th>Slug</th>
+                    <th>Display Name</th>
                     <th>Количество переходов</th>
                 </tr>
                 </thead>
                 <tbody>
-                {logs.map((log) => (
-                    <tr key={log.qr_id}>
-                        <td>{log.qr_id}</td>
-                        <td>{log.clicks}</td>
+                {stats.map((stat) => (
+                    <tr key={stat.slug}>
+                        <td>
+                            <a href={`/counter/${stat.slug}`}>{stat.slug}</a>
+                        </td>
+                        <td>{stat.display_name}</td>
+                        <td>{stat.clicks}</td>
                     </tr>
                 ))}
                 </tbody>
