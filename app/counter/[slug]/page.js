@@ -3,7 +3,6 @@ import pool from '../../../lib/db';
 import "../../../styles/counter.css";
 
 async function getLogDetails(slug) {
-    // Выполним соединение таблиц, чтобы получить click_timestamp из qr_logs и display_name из qr_links
     const res = await pool.query(
         `
     SELECT r.click_timestamp, l.display_name
@@ -18,10 +17,21 @@ async function getLogDetails(slug) {
 }
 
 export default async function LogDetailPage({ params }) {
-    // Дождемся, что params разрешится, чтобы корректно получить slug
+    // Ждем разрешения объекта params
     const { slug } = await params;
     const logs = await getLogDetails(slug);
     const displayName = logs.length > 0 ? logs[0].display_name : '';
+
+    // Опции форматирования даты для Киева
+    const dateOptions = {
+        timeZone: 'Europe/Kiev',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
 
     return (
         <div className="counterContainer">
@@ -37,7 +47,9 @@ export default async function LogDetailPage({ params }) {
                 <tbody>
                 {logs.map((log, index) => (
                     <tr key={index}>
-                        <td>{new Date(log.click_timestamp).toLocaleString()}</td>
+                        <td>
+                            {new Date(log.click_timestamp).toLocaleString('uk-UA', dateOptions)}
+                        </td>
                     </tr>
                 ))}
                 </tbody>

@@ -1,6 +1,8 @@
 import pool from '../../lib/db';
 import "../../styles/common.css";
 
+export const dynamic = "force-dynamic";
+
 async function getStats() {
     const res = await pool.query(`
         SELECT l.slug, l.display_name, COUNT(*) AS clicks
