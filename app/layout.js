@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-    title: "My Link Redirect App",
-    description: "Приложение для редиректа и учёта кликов.",
+    title: 'NKZ - Новація Коротких З&#39;єднань',
+    description: 'Новація Коротких З&#39;єднань',
 };
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="ru">
+        <html lang="uk">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
         </body>
