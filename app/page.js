@@ -1,4 +1,6 @@
+// app/page.js
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from '../styles/home.module.css';
 
 export default function Home() {
@@ -7,7 +9,7 @@ export default function Home() {
             {/* ШАПКА */}
             <header className={styles.header}>
                 <div className={styles.headerContainer}>
-                    {/* Верхняя часть: лого + расшифровка */}
+                    {/* Верхняя часть: лого, текст и кнопка входа (в одном flex-контейнере) */}
                     <div className={styles.topRow}>
                         <div className={styles.logoWrapper}>
                             <Image
@@ -26,9 +28,14 @@ export default function Home() {
                                 З&#39;єднань
                             </h1>
                         </div>
+                        <div className={styles.loginRow}>
+                            <Link href="/auth/signin" className={styles.loginButton}>
+                                Войти
+                            </Link>
+                        </div>
                     </div>
 
-                    {/* Слоган одной строкой внизу */}
+                    {/* Слоган */}
                     <div className={styles.sloganRow}>
                         <p className={styles.slogan}>Лаконічність у кожному QR</p>
                     </div>
@@ -37,7 +44,6 @@ export default function Home() {
 
             {/* ОСНОВНОЙ КОНТЕНТ */}
             <main className={styles.mainContainer}>
-
                 {/* Блок "Услуги" (4 карточки) */}
                 <section className={styles.cardsContainer}>
                     <div className={styles.card}>
@@ -108,24 +114,21 @@ export default function Home() {
                     </div>
                 </section>
 
-                {/* Контакт - вместо кнопки теперь e-mail */}
+                {/* Контакт - e-mail */}
                 <section className={styles.cardsContainer}>
                     <div className={styles.card}>
                         <h2>Залишились запитання?</h2>
                         <p>Ми готові відповісти на них та запропонувати найкращі рішення саме для вас.</p>
-
-                        {/* E-mail по центру, активная ссылка mailto */}
-                        <p style={{margin: '0.75rem 0 0', fontSize: '1.05rem'}}>
+                        <p style={{ margin: '0.75rem 0 0', fontSize: '1.05rem' }}>
                             <a
                                 href="mailto:info@nkz.com.ua"
-                                style={{color: '#3B82F6', textDecoration: 'underline'}}
+                                style={{ color: '#3B82F6', textDecoration: 'underline' }}
                             >
                                 info@nkz.com.ua
                             </a>
                         </p>
                     </div>
                 </section>
-
             </main>
         </>
     );

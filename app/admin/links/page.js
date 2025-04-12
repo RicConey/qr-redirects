@@ -1,12 +1,12 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import AdminCounterStats from "../../components/AdminCounterStats";
-import NavbarAdmin from "../../components/NavbarAdmin";
+import AdminPanel from "../../../components/AdminPanel";
+import NavbarAdmin from "../../../components/NavbarAdmin";
 
-export default function AdminHomePage() {
+export default function LinksPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [accessDenied, setAccessDenied] = useState(false);
@@ -28,8 +28,7 @@ export default function AdminHomePage() {
     return (
         <div className="container">
             <NavbarAdmin />
-            <h1 className="header">Загальна статистика</h1>
-            <AdminCounterStats />
+            <AdminPanel />
         </div>
     );
 }

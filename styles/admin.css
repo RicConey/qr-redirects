@@ -146,3 +146,95 @@
         margin-bottom: 0.25rem;
     }
 }
+.admin-nav {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-nav a {
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background: #eee;
+    color: #333;
+    font-weight: 500;
+}
+
+.admin-nav a.active {
+    background: #249b89;
+    color: white;
+}
+.danger-button {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.danger-button:hover {
+    background-color: #c9302c;
+}
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-button {
+    background-color: #f3f4f6;
+    color: #111827;
+    border: 1px solid #d1d5db;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.action-button:hover {
+    background-color: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.action-button.danger {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+.action-button.danger:hover {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+}
+
+.counterTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.counterTable th,
+.counterTable td {
+    border: 1px solid #ddd;
+    padding: 0.5rem 0.8rem;
+    text-align: center;
+}
+
+.counterTable th {
+    background-color: #f3f4f6;
+    color: #111827;
+}

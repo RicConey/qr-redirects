@@ -1,57 +1,92 @@
-// app/counter/[slug]/page.js
-import pool from '../../../lib/db';
-import "../../../styles/counter.css";
+"use client";
 
-async function getLogDetails(slug) {
-    const res = await pool.query(
-        `
-    SELECT r.click_timestamp, l.display_name
-    FROM qr_logs r
-    JOIN qr_links l ON l.slug = r.qr_slug
-    WHERE r.qr_slug = $1
-    ORDER BY r.click_timestamp DESC
-    `,
-        [slug]
-    );
-    return res.rows;
-}
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import "../../../styles/admin.css";
 
-export default async function LogDetailPage({ params }) {
-    // Ждем разрешения объекта params
-    const { slug } = await params;
-    const logs = await getLogDetails(slug);
-    const displayName = logs.length > 0 ? logs[0].display_name : '';
+export default function LogDetailPage() {
+    const { data: session, status } = useSession();
+    const { slug } = useParams();
+    const [logs, setLogs] = useState([]);
+    const [message, setMessage] = useState("");
 
-    // Опции форматирования даты для Киева
-    const dateOptions = {
-        timeZone: 'Europe/Kiev',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    };
+    // Защита: если не авторизован — редирект на главную
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            window.location.href = "/";
+        }
+    }, [status]);
+
+    useEffect(() => {
+        if (status === "authenticated" && slug) {
+            fetchLogs();
+        }
+    }, [status, slug]);
+
+    async function fetchLogs() {
+        try {
+            const res = await fetch(`/api/logs/${slug}`);
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Помилка запиту: ${res.status}. Відповідь: ${text}`);
+            }
+            const data = await res.json();
+            setLogs(data.logs);
+        } catch (error) {
+            console.error("Помилка отримання логів:", error);
+            setMessage("Помилка отримання логів: " + error.message);
+        }
+    }
+
+    if (status === "loading") return <p>Завантаження...</p>;
 
     return (
-        <div className="counterContainer">
-            <h1 className="counterHeader">
-                Детальная статистика для {displayName} ({slug})
-            </h1>
+        <div className="adminStats">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2 className="tableTitle">Детальна статистика переходів</h2>
+                <button
+                    className="action-button"
+                    onClick={() => window.history.back()}
+                >
+                    Назад
+                </button>
+            </div>
+
+            <p><strong>Slug:</strong> {slug}</p>
+
+            {message && <div className="adminMessage">{message}</div>}
+
             <table className="counterTable">
                 <thead>
                 <tr>
-                    <th>Дата и время перехода</th>
+                    <th>№</th>
+                    <th>Дата переходу</th>
                 </tr>
                 </thead>
                 <tbody>
-                {logs.map((log, index) => (
-                    <tr key={index}>
-                        <td>
-                            {new Date(log.click_timestamp).toLocaleString('uk-UA', dateOptions)}
-                        </td>
+                {logs.length === 0 ? (
+                    <tr>
+                        <td colSpan={2}>Переходів ще не було</td>
                     </tr>
-                ))}
+                ) : (
+                    logs.map((log, index) => (
+                        <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>
+                                {new Date(log.click_timestamp).toLocaleString("uk-UA", {
+                                    timeZone: "Europe/Kiev",
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit"
+                                })}
+                            </td>
+                        </tr>
+                    ))
+                )}
                 </tbody>
             </table>
         </div>

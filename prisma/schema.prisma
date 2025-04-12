@@ -1,0 +1,45 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique
+  password_hash String
+  role          String   @default("user")
+  created_at    DateTime @default(now())
+
+  // Связь "один пользователь -> много ссылок"
+  qr_links QrLink[]
+
+  @@map("users")
+}
+
+model QrLink {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  destination_url String
+  display_name    String?
+  created_at      DateTime @default(now())
+
+  // Поле owner_id
+  owner_id Int?
+
+  // Релейшн с User, onDelete: SetNull соответствует ON DELETE SET NULL
+  user User? @relation(fields: [owner_id], references: [id], onDelete: SetNull)
+
+  @@map("qr_links")
+}
+
+model QrLog {
+  id              Int      @id @default(autoincrement())
+  qr_slug         String
+  click_timestamp DateTime @default(now())
+
+  @@map("qr_logs")
+}

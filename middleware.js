@@ -1,75 +1,50 @@
-// middleware.js
-import { NextResponse } from 'next/server';
-
-// Функция для асинхронного вычисления SHA-256 хэша строки, возвращает строку в шестнадцатеричном формате
-async function hashPassword(password) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    // Преобразуем массив байт в шестнадцатеричную строку
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(req) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     const { pathname } = req.nextUrl;
 
-    // Защищаем маршруты админки и статистики
-    if (pathname.startsWith('/admin') || pathname.startsWith('/counter')) {
-        const authHeader = req.headers.get('authorization');
-        if (!authHeader) {
-            return new NextResponse('Auth required', {
-                status: 401,
-                headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-            });
+    // Разрешаем публичные маршруты, statics, /auth, /api
+    if (
+        pathname.startsWith("/auth") ||
+        pathname.startsWith("/api") ||
+        pathname.startsWith("/_next") ||
+        pathname.includes(".")
+    ) {
+        return NextResponse.next();
+    }
+
+    // Если нужно, чтобы /counter/... только для авторизованных:
+    if (pathname.startsWith("/counter")) {
+        // Неавторизован → перенаправляем на логин
+        if (!token) {
+            const url = req.nextUrl.clone();
+            url.pathname = "/auth/signin";
+            url.search = "?error=unauthorized";
+            return NextResponse.redirect(url);
         }
+    }
 
-        // Ожидаем схему Basic
-        const [scheme, base64Credentials] = authHeader.split(' ');
-        if (scheme !== 'Basic' || !base64Credentials) {
-            return new NextResponse('Invalid authentication header', {
-                status: 401,
-                headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-            });
-        }
+    // Если нужно проверить, что /admin только для admin, /user для user — оставляем
+    if (pathname.startsWith("/admin") && (!token || token.role !== "admin")) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/auth/signin";
+        url.search = "?error=unauthorized";
+        return NextResponse.redirect(url);
+    }
 
-        // Декодируем базовую строку (в Edge runtime доступна функция atob)
-        const decoded = atob(base64Credentials);
-        const [providedUsername, providedPassword] = decoded.split(':');
-
-        if (!providedUsername || !providedPassword) {
-            return new NextResponse('Invalid credentials', {
-                status: 401,
-                headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-            });
-        }
-
-        const adminUsername = process.env.ADMIN_USERNAME;
-        const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-
-        // Проверяем имя пользователя
-        if (providedUsername !== adminUsername) {
-            return new NextResponse('Access Denied', {
-                status: 401,
-                headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-            });
-        }
-
-        // Вычисляем хэш предоставленного пароля
-        const providedPasswordHash = await hashPassword(providedPassword);
-
-        // Сравниваем хэши
-        if (providedPasswordHash !== adminPasswordHash) {
-            return new NextResponse('Access Denied', {
-                status: 401,
-                headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' },
-            });
-        }
+    if (pathname.startsWith("/user") && (!token || token.role !== "user")) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/auth/signin";
+        url.search = "?error=unauthorized";
+        return NextResponse.redirect(url);
     }
 
     return NextResponse.next();
 }
 
+// Включаем middleware для /admin, /user, /counter
 export const config = {
-    matcher: ['/admin/:path*', '/counter/:path*'],
+    matcher: ["/admin/:path*", "/user/:path*", "/counter/:path*"],
 };
